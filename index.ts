@@ -22,7 +22,7 @@ function timeout(ms) {
   //console.log('... waiting ...');
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
-const feedInProgress = false;
+const feedInProgress = true;
 
 function getParsed(body: string): Either<Message, Payload> {
   console.log('getParsed: ', body);
@@ -33,7 +33,10 @@ function getParsed(body: string): Either<Message, Payload> {
   return right(parsedPayload.data);
 }
 
-async function feedExist(payload: Payload): Promise<Either<Message, Payload>> {
+async function feedExist(
+  db: string,
+  payload: Payload
+): Promise<Either<Message, Payload>> {
   console.log('feedExist', payload);
   await timeout(1000);
   if (payload.feedId !== '1') {
@@ -46,6 +49,7 @@ async function feedExist(payload: Payload): Promise<Either<Message, Payload>> {
 }
 
 async function isFeedInProgress(
+  db: string,
   payload: Payload
 ): Promise<Either<Message, Payload>> {
   console.log('isFeedInProgress', payload);
@@ -59,7 +63,10 @@ async function isFeedInProgress(
   return right(payload);
 }
 
-async function closeFeed(payload: Payload): Promise<Either<Message, Message>> {
+async function closeFeed(
+  db: string,
+  payload: Payload
+): Promise<Either<Message, Message>> {
   console.log('closeFeed', payload);
   await timeout(1000);
   return right({
@@ -83,12 +90,13 @@ var pipeWhileRightP = R.pipeWith((fun, previousResult) => {
 });
 
 (async () => {
-  let payload = '{"feedId": "1", "mode":"Flush"}';
+  let db = 'this is my database';
+  let payload = '{"feedId": "2", "mode":"Flush"}';
   var response = await pipeWhileRightP([
     getParsed,
-    feedExist,
-    isFeedInProgress,
-    closeFeed,
+    R.curry(feedExist)(db),
+    R.curry(isFeedInProgress)(db),
+    R.curry(closeFeed)(db),
   ])(payload);
 
   console.log('!!!', response.value);
