@@ -19,7 +19,7 @@ const PayloadSchema = z.object({
 type Payload = z.infer<typeof PayloadSchema>;
 
 function timeout(ms) {
-  //console.log('... waiting ...');
+  console.log('... waiting ...');
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 const feedInProgress = true;
@@ -91,7 +91,8 @@ var pipeWhileRightP = R.pipeWith((fun, previousResult) => {
 
 (async () => {
   let db = 'this is my database';
-  let payload = '{"feedId": "2", "mode":"Flush"}';
+  let payload = '{"feedId": "1", "mode":"Flush3"}';
+
   var response = await pipeWhileRightP([
     getParsed,
     R.curry(feedExist)(db),
